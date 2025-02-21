@@ -38,6 +38,9 @@ dependencies:
   flutter_contacts: ^1.1.9+2
   image_picker: ^1.1.2
   provider: ^6.1.2
+  dio: ^5.8.0+1
+  pretty_dio_logger: ^1.4.0
+  shared_preferences: ^2.5.2
 
 dev_dependencies:
   flutter_test:
