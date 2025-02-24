@@ -91,6 +91,7 @@ class ApiService {
     name
     phone
     email
+    image_1920
     
 }}
           """
@@ -110,6 +111,64 @@ class ApiService {
     } catch (e) {
       log("Error Fetch Partner: $e");
       return [];
+    }
+  }
+
+  Future<Partner> addNewPartner({
+    required String name,
+    required String phone,
+    required String email,
+    required String image,
+  }) async {
+    const String mutation = """
+    mutation Create(\$name: String!, \$phone: String!, \$email: String, \$image: String) {
+      createResPartner: ResPartner(
+        ResPartnerValues: {
+          name: \$name,
+          phone: \$phone,
+          email: \$email,
+          image_1920: \$image
+        }
+      ) {
+        id
+        name
+        email
+        phone
+        image_1920
+      }
+    }
+  """;
+
+    final Map<String, dynamic> variables = {
+      "name": name,
+      "phone": phone,
+      "email": email,
+      "image": image,
+    };
+
+    try {
+      Response response = await dio.post(contactUrl,
+          options: Options(headers: {
+            'x-api-key': authToken,
+            'Content-Type': "application/json",
+          }),
+          data: jsonEncode({"query": mutation, "variables": variables}));
+
+      log("Insert Data Call or Not => $response");
+
+      if (response.statusCode == 200 && response.data["data"] != null) {
+        final Map<String, dynamic> data =
+            response.data["data"]["createResPartner"];
+        // return Partner.fromJson(data[0]);
+        Partner partner = Partner.fromJson(data);
+        return partner;
+      } else {
+        log("Failed To Insert Partner - Status Code : ${response.statusCode},Response: ${jsonEncode(response.data)}");
+        throw Exception("Failed to insert else code partner apiservice");
+      }
+    } catch (e) {
+      log("Error while adding partner: $e");
+      throw Exception("Failed to add partner catch code in apiservice");
     }
   }
 

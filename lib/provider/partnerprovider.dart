@@ -37,4 +37,21 @@ class PartnerProvider with ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
+
+  Future<void> addNewContactPartner({
+    required String name,
+    required String phone,
+    required String email,
+    required String image,
+  }) async {
+    try {
+      Partner insertNewPartner = await _apiService.addNewPartner(
+          name: name, phone: phone, email: email, image: image);
+
+      _partner.add(insertNewPartner);
+      notifyListeners();
+    } catch (e) {
+      log("Failed to add Partner in provider file $e");
+    }
+  }
 }

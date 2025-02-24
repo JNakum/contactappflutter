@@ -3,7 +3,7 @@ class Partner {
   final String name;
   final dynamic phone;
   final dynamic email;
-  final String image; // image_1920 ko map karne ke liye
+  final dynamic image; // image_1920 ko map karne ke liye
 
   Partner({
     required this.id,
@@ -20,7 +20,9 @@ class Partner {
       name: json['name'],
       phone: json['phone'] is bool ? "" : json['phone'],
       email: json['email'] is bool ? "" : json['email'],
-      image: json['image_1920'] ?? '', // API field image_1920 handle kiya
+      image: json['image_1920'] is bool
+          ? ""
+          : json['image_1920'], // API field image_1920 handle kiya
     );
   }
 

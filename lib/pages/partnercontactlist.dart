@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:contactapp/pages/insertnewpartner.dart';
 import 'package:contactapp/pages/loginpage.dart';
 import 'package:contactapp/provider/loginprovider.dart';
 import 'package:contactapp/provider/partnerprovider.dart';
@@ -13,6 +17,20 @@ class PartnerContactList extends StatefulWidget {
 }
 
 class _PartnerContactListState extends State<PartnerContactList> {
+  getImageAvatar(image) {
+    if (image != null && image != false) {
+      Uint8List imageBytes = base64.decode(image);
+      ImageProvider imageProvider = MemoryImage(imageBytes);
+      return CircleAvatar(
+        backgroundImage: imageProvider,
+      );
+    } else {
+      return CircleAvatar(
+        child: Icon(Icons.person),
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -29,6 +47,26 @@ class _PartnerContactListState extends State<PartnerContactList> {
         title: const Text("Contact List"),
         centerTitle: true,
         actions: [
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: InkWell(
+                onTap: () async {
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //         builder: (context) => InsertNewPartner()));
+                  bool? isAdded = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => InsertNewPartner()),
+                  );
+
+                  if (isAdded == true) {
+                    Provider.of<PartnerProvider>(context, listen: false)
+                        .fetchPartners();
+                  }
+                },
+                child: Icon(Icons.add)),
+          ),
           IconButton(
               onPressed: () async {
                 await SharePreferenceHelper.removeToken();
@@ -39,7 +77,7 @@ class _PartnerContactListState extends State<PartnerContactList> {
                   MaterialPageRoute(builder: (context) => const LoginPage()),
                 );
               },
-              icon: const Icon(Icons.logout_outlined))
+              icon: const Icon(Icons.logout_outlined)),
         ],
       ),
       body: partnerProvider.isLoading
@@ -53,13 +91,7 @@ class _PartnerContactListState extends State<PartnerContactList> {
                     return Card(
                       margin: const EdgeInsets.all(8),
                       child: ListTile(
-                        leading: partner.image.isNotEmpty
-                            ? CircleAvatar(
-                                backgroundImage: NetworkImage(partner.image),
-                              )
-                            : const CircleAvatar(
-                                child: Icon(Icons.person),
-                              ),
+                        leading: getImageAvatar(partner.image),
                         title: Text(partner.name),
                         subtitle: Text(partner.phone),
                         trailing: Text(partner.email),
