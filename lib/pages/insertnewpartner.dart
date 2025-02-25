@@ -1,6 +1,6 @@
-import 'dart:developer';
+import 'dart:convert';
 import 'dart:io';
-
+import 'package:image/image.dart' as img;
 import 'package:contactapp/provider/partnerprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,14 +20,13 @@ class _InsertNewPartnerState extends State<InsertNewPartner> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _imageController = TextEditingController();
+  bool _isSave = false;
 
   void _savePartner() async {
     if (_formKey.currentState!.validate()) {
-      log("Name: ${_nameController.text}");
-      log("Phone: ${_phoneController.text}");
-      log("Email: ${_emailController.text}");
-      log("Image: ${_imageController.text}");
-
+      setState(() {
+        _isSave = true;
+      });
       final partnerProvider =
           Provider.of<PartnerProvider>(context, listen: false);
 
@@ -37,10 +36,14 @@ class _InsertNewPartnerState extends State<InsertNewPartner> {
           email: _emailController.text,
           image: _imageController.text);
 
+      setState(() {
+        _isSave = false;
+      });
+
       if (!mounted) {
         return;
       }
-      // await partnerProvider.fetchPartners();
+      await partnerProvider.fetchPartners();
       Navigator.pop(context, true);
     }
   }
@@ -48,10 +51,24 @@ class _InsertNewPartnerState extends State<InsertNewPartner> {
   Future<void> _pickImage() async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
+
     if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
+      final File imageFile = File(pickedFile.path);
+      final bytes = await imageFile.readAsBytes();
+
+      // Decode image
+      img.Image? decodedImage = img.decodeImage(bytes);
+
+      if (decodedImage != null) {
+        img.Image resizedImage = img.copyResize(decodedImage, width: 300);
+
+        final compressedBytes = img.encodeJpg(resizedImage, quality: 85);
+
+        setState(() {
+          _image = imageFile;
+          _imageController.text = base64Encode(compressedBytes);
+        });
+      }
     }
   }
 
@@ -98,7 +115,6 @@ class _InsertNewPartnerState extends State<InsertNewPartner> {
               SizedBox(
                 height: 5,
               ),
-              // Image Upload Field
               _image != null
                   ? Image.file(_image!,
                       height: 100, width: 100, fit: BoxFit.cover)
@@ -111,11 +127,13 @@ class _InsertNewPartnerState extends State<InsertNewPartner> {
               SizedBox(
                 height: 5,
               ),
-              ElevatedButton(
-                  onPressed: () {
-                    _savePartner();
-                  },
-                  child: Text("Save")),
+              _isSave
+                  ? CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: () {
+                        _savePartner();
+                      },
+                      child: Text("Save")),
             ],
           ),
         ),

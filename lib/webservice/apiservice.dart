@@ -155,13 +155,18 @@ class ApiService {
           data: jsonEncode({"query": mutation, "variables": variables}));
 
       log("Insert Data Call or Not => $response");
+      log("List ya Map => ${response.data.runtimeType}");
 
       if (response.statusCode == 200 && response.data["data"] != null) {
-        final Map<String, dynamic> data =
+        final List<dynamic> dataList =
             response.data["data"]["createResPartner"];
-        // return Partner.fromJson(data[0]);
-        Partner partner = Partner.fromJson(data);
-        return partner;
+        if (dataList.isNotEmpty) {
+          final Map<String, dynamic> data = dataList[0];
+          Partner partner = Partner.fromJson(data);
+          return partner;
+        } else {
+          throw Exception("createResPartner list is empty");
+        }
       } else {
         log("Failed To Insert Partner - Status Code : ${response.statusCode},Response: ${jsonEncode(response.data)}");
         throw Exception("Failed to insert else code partner apiservice");
@@ -169,6 +174,46 @@ class ApiService {
     } catch (e) {
       log("Error while adding partner: $e");
       throw Exception("Failed to add partner catch code in apiservice");
+    }
+  }
+
+  Future<void> deletePartner(int id) async {
+    final String mutation = """
+    mutation Delete(\$id: Int!) {
+      deleteResPartner: ResPartner(id: \$id) {
+        id
+      }
+    }
+  """;
+
+    try {
+      final response = await dio.post(
+        contactUrl,
+        options: Options(
+          headers: {
+            'x-api-key': authToken,
+            "Content-Type": "application/json",
+          },
+          responseType: ResponseType.json,
+        ),
+        data: jsonEncode({
+          "query": mutation,
+          "variables": {"id": id},
+        }),
+      );
+
+      if (response.statusCode == 200 && response.data["data"] != null) {
+        if (response.data["data"]["delete"] == "Success") {
+          log("Partner deleted successfully");
+        } else {
+          log("Warning: Unexpected response structure");
+        }
+      } else {
+        throw Exception("Failed to delete partner: ${response.statusCode}");
+      }
+    } catch (e) {
+      log("Error deleting partner: $e");
+      throw Exception("Error deleting partner");
     }
   }
 

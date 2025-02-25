@@ -17,6 +17,7 @@ class PartnerContactList extends StatefulWidget {
 }
 
 class _PartnerContactListState extends State<PartnerContactList> {
+  int? selectedIndex;
   getImageAvatar(image) {
     if (image != null && image != false) {
       Uint8List imageBytes = base64.decode(image);
@@ -51,10 +52,6 @@ class _PartnerContactListState extends State<PartnerContactList> {
             padding: const EdgeInsets.all(10.0),
             child: InkWell(
                 onTap: () async {
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //         builder: (context) => InsertNewPartner()));
                   bool? isAdded = await Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => InsertNewPartner()),
@@ -88,13 +85,73 @@ class _PartnerContactListState extends State<PartnerContactList> {
                   itemCount: partnerProvider.contact.length,
                   itemBuilder: (context, index) {
                     final partner = partnerProvider.contact[index];
+                    final isExpanded = selectedIndex == index;
                     return Card(
                       margin: const EdgeInsets.all(8),
-                      child: ListTile(
-                        leading: getImageAvatar(partner.image),
-                        title: Text(partner.name),
-                        subtitle: Text(partner.phone),
-                        trailing: Text(partner.email),
+                      child: Column(
+                        children: [
+                          ListTile(
+                            leading: getImageAvatar(partner.image),
+                            title: Text(partner.name),
+                            subtitle: Text(partner.phone),
+                            trailing: Text(partner.email),
+                            onTap: () {
+                              setState(() {
+                                selectedIndex =
+                                    selectedIndex == index ? null : index;
+                              });
+                            },
+                          ),
+                          if (isExpanded)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 15, vertical: 8),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  IconButton(
+                                      onPressed: () async {
+                                        final provider =
+                                            Provider.of<PartnerProvider>(
+                                                context,
+                                                listen: false);
+                                        try {
+                                          await provider
+                                              .deleteContactPartner(partner.id);
+                                          setState(
+                                              () {}); // UI update for deleted item
+                                        } catch (e) {
+                                          if (mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                  content: Text(
+                                                      "Failed to delete contact: $e")),
+                                            );
+                                          }
+                                        }
+                                      },
+                                      icon: Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      )),
+                                  IconButton(
+                                      onPressed: () {},
+                                      icon: Icon(
+                                        Icons.edit,
+                                        color: Colors.blue,
+                                      )),
+                                  IconButton(
+                                      onPressed: () {},
+                                      icon: Icon(
+                                        Icons.call,
+                                        color: Colors.green,
+                                      ))
+                                ],
+                              ),
+                            )
+                        ],
                       ),
                     );
                   },

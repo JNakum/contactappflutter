@@ -29,7 +29,7 @@ class PartnerProvider with ChangeNotifier {
       }
 
       _partner = await _apiService.getContactPartners();
-      log("contact load in api partnerparovider.dartr => $_partner");
+      // log("contact load in api partnerparovider.dartr => $_partner");
     } catch (e) {
       _errorMessage = "Failed to Load Contact In Provider file..";
     }
@@ -52,6 +52,16 @@ class PartnerProvider with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       log("Failed to add Partner in provider file $e");
+    }
+  }
+
+  Future<void> deleteContactPartner(int id) async {
+    try {
+      await _apiService.deletePartner(id);
+      _partner.removeWhere((partner) => partner.id == id);
+      notifyListeners();
+    } catch (e) {
+      log("Failed to delete Partner in provider file: $e");
     }
   }
 }
