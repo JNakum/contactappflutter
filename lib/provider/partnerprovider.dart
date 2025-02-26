@@ -10,10 +10,12 @@ class PartnerProvider with ChangeNotifier {
   List<Partner> _partner = [];
   bool _isLoading = false;
   String? _errorMessage;
+  Partner? _selectedpartner;
 
   List<Partner> get contact => _partner;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  Partner? get selectedPartner => _selectedpartner;
 
   Future<void> fetchPartners() async {
     _isLoading = true;
@@ -62,6 +64,21 @@ class PartnerProvider with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       log("Failed to delete Partner in provider file: $e");
+    }
+  }
+
+  void setSelectedPartner(Partner? partner) {
+    _selectedpartner = partner;
+    notifyListeners();
+  }
+
+  Future<void> updateContactPartner(
+      int id, String name, String phone, String email, String image) async {
+    final updatedData =
+        await _apiService.updateContact(id, name, phone, email, image);
+    if (updatedData != null) {
+      _selectedpartner = Partner.fromJson(updatedData);
+      notifyListeners();
     }
   }
 }

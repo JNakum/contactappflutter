@@ -137,7 +137,21 @@ class _PartnerContactListState extends State<PartnerContactList> {
                                         color: Colors.red,
                                       )),
                                   IconButton(
-                                      onPressed: () {},
+                                      onPressed: () async {
+                                        final provider =
+                                            Provider.of<PartnerProvider>(
+                                                context,
+                                                listen: false);
+                                        provider.setSelectedPartner(partner);
+                                        bool? isUpdated = await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    InsertNewPartner()));
+                                        if (isUpdated == true) {
+                                          provider.fetchPartners();
+                                        }
+                                      },
                                       icon: Icon(
                                         Icons.edit,
                                         color: Colors.blue,

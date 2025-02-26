@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'package:image/image.dart' as img;
 import 'package:contactapp/provider/partnerprovider.dart';
@@ -29,12 +30,22 @@ class _InsertNewPartnerState extends State<InsertNewPartner> {
       });
       final partnerProvider =
           Provider.of<PartnerProvider>(context, listen: false);
+      final partner = partnerProvider.selectedPartner;
 
-      await partnerProvider.addNewContactPartner(
-          name: _nameController.text,
-          phone: _phoneController.text,
-          email: _emailController.text,
-          image: _imageController.text);
+      if (partner == null) {
+        await partnerProvider.addNewContactPartner(
+            name: _nameController.text,
+            phone: _phoneController.text,
+            email: _emailController.text,
+            image: _imageController.text);
+      } else {
+        await partnerProvider.updateContactPartner(
+            partner.id,
+            _nameController.text,
+            _phoneController.text,
+            _emailController.text,
+            _imageController.text);
+      }
 
       setState(() {
         _isSave = false;
@@ -63,12 +74,27 @@ class _InsertNewPartnerState extends State<InsertNewPartner> {
         img.Image resizedImage = img.copyResize(decodedImage, width: 300);
 
         final compressedBytes = img.encodeJpg(resizedImage, quality: 85);
+        log("compressed imge bytes => $compressedBytes");
 
         setState(() {
           _image = imageFile;
           _imageController.text = base64Encode(compressedBytes);
         });
       }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final partnerProvider =
+        Provider.of<PartnerProvider>(context, listen: false);
+    final partner = partnerProvider.selectedPartner;
+    if (partner != null) {
+      _nameController.text = partner.name;
+      _phoneController.text = partner.phone;
+      _emailController.text = partner.email;
+      _imageController.text = partner.image ?? "";
     }
   }
 
@@ -133,7 +159,11 @@ class _InsertNewPartnerState extends State<InsertNewPartner> {
                       onPressed: () {
                         _savePartner();
                       },
-                      child: Text("Save")),
+                      child: Text(Provider.of<PartnerProvider>(context)
+                                  .selectedPartner ==
+                              null
+                          ? "Save"
+                          : "Update")),
             ],
           ),
         ),

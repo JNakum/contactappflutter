@@ -217,6 +217,62 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>?> updateContact(
+      int id, String name, String phone, String email, String image) async {
+    const String mutation = '''
+      mutation Update(\$id: Int!, \$name: String!, \$phone: String!, \$email: String!, \$image: String!) {
+        updateResPartner: ResPartner(
+          id: \$id, 
+          ResPartnerValues: {
+            name: \$name,
+            phone: \$phone,
+            email: \$email,
+            image_1920: \$image
+          }
+        ) {
+          id
+          name
+          phone
+          email
+          image_1920
+        }
+      }
+    ''';
+
+    final Map<String, dynamic> variables = {
+      "id": id,
+      "name": name,
+      "phone": phone,
+      "email": email,
+      "image": image.isNotEmpty ? image : "",
+    };
+
+    try {
+      final response = await dio.post(
+        contactUrl,
+        options: Options(headers: {
+          'x-api-key': authToken,
+          'Content-Type': "application/json",
+        }),
+        data: jsonEncode({"query": mutation, "variables": variables}),
+      );
+      log("Response type: ${response.data["data"]["updateResPartner"].runtimeType}");
+      log("Response type: ${response.runtimeType}");
+
+      if (response.statusCode == 200) {
+        // return response.data["data"]["updateResPartner"];
+        final updateResPartner = response.data["data"]["updateResPartner"];
+
+        if (updateResPartner is List && updateResPartner.isNotEmpty) {
+          return updateResPartner.first as Map<String, dynamic>;
+        }
+      }
+    } catch (e) {
+      print("Error updating contact: $e");
+    }
+    return null;
+  }
+
   void setAuthToken(String token) {
     authToken = token;
     dio.options.headers['Authorization'] = "Bearer $token";
