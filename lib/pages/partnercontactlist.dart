@@ -5,6 +5,7 @@ import 'package:contactapp/pages/insertnewpartner.dart';
 import 'package:contactapp/pages/loginpage.dart';
 import 'package:contactapp/provider/loginprovider.dart';
 import 'package:contactapp/provider/partnerprovider.dart';
+import 'package:contactapp/utils/callhelper.dart';
 import 'package:contactapp/utils/shareprefrence.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -30,6 +31,10 @@ class _PartnerContactListState extends State<PartnerContactList> {
         child: Icon(Icons.person),
       );
     }
+  }
+
+  directCall(String phoneNumber) {
+    CallHelper.makeDirectCall(phoneNumber);
   }
 
   @override
@@ -109,22 +114,20 @@ class _PartnerContactListState extends State<PartnerContactList> {
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16),
-                                  overflow: TextOverflow
-                                      .ellipsis, // Agar naam lamba ho to dots lagayega
-                                  maxLines: 1, // Sirf ek line tak dikhayega
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
                                 ),
-                                SizedBox(height: 4), // Thoda gap
+                                SizedBox(height: 4),
                                 Text(
                                   partner.phone,
                                   style: TextStyle(color: Colors.grey[700]),
                                 ),
-                                SizedBox(height: 4), // Thoda gap
+                                SizedBox(height: 4),
                                 Text(
                                   partner.email,
                                   style: TextStyle(color: Colors.grey[600]),
-                                  overflow: TextOverflow
-                                      .ellipsis, // Email bhi trim hoga agar bada ho
-                                  maxLines: 2, // 2 lines tak email allow karega
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
                                 ),
                               ],
                             ),
@@ -197,7 +200,9 @@ class _PartnerContactListState extends State<PartnerContactList> {
                                         color: Colors.blue,
                                       )),
                                   IconButton(
-                                      onPressed: () {},
+                                      onPressed: () async {
+                                        directCall(partner.phone);
+                                      },
                                       icon: Icon(
                                         Icons.call,
                                         color: Colors.green,
