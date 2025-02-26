@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:contactapp/utils/textformat.dart';
 import 'package:image/image.dart' as img;
 import 'package:contactapp/provider/partnerprovider.dart';
 import 'package:flutter/material.dart';
@@ -102,7 +103,10 @@ class _InsertNewPartnerState extends State<InsertNewPartner> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Add New Partner.."),
+        title: Text(
+            Provider.of<PartnerProvider>(context).selectedPartner == null
+                ? "Add New Contact"
+                : "Update Contact"),
         centerTitle: true,
       ),
       body: Padding(
@@ -113,6 +117,7 @@ class _InsertNewPartnerState extends State<InsertNewPartner> {
             children: [
               TextFormField(
                 controller: _nameController,
+                inputFormatters: [CapitalizeWordsTextFormatter()],
                 decoration: InputDecoration(labelText: "Name"),
                 validator: (value) =>
                     value!.isEmpty ? "Please Enter Name" : null,

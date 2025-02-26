@@ -52,6 +52,9 @@ class _PartnerContactListState extends State<PartnerContactList> {
             padding: const EdgeInsets.all(10.0),
             child: InkWell(
                 onTap: () async {
+                  final provider =
+                      Provider.of<PartnerProvider>(context, listen: false);
+                  provider.setSelectedPartner(null);
                   bool? isAdded = await Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => InsertNewPartner()),
