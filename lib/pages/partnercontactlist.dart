@@ -95,16 +95,53 @@ class _PartnerContactListState extends State<PartnerContactList> {
                         children: [
                           ListTile(
                             leading: getImageAvatar(partner.image),
-                            title: Text(partner.name),
-                            subtitle: Text(partner.phone),
-                            trailing: Text(partner.email),
                             onTap: () {
                               setState(() {
                                 selectedIndex =
                                     selectedIndex == index ? null : index;
                               });
                             },
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  partner.name,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                  overflow: TextOverflow
+                                      .ellipsis, // Agar naam lamba ho to dots lagayega
+                                  maxLines: 1, // Sirf ek line tak dikhayega
+                                ),
+                                SizedBox(height: 4), // Thoda gap
+                                Text(
+                                  partner.phone,
+                                  style: TextStyle(color: Colors.grey[700]),
+                                ),
+                                SizedBox(height: 4), // Thoda gap
+                                Text(
+                                  partner.email,
+                                  style: TextStyle(color: Colors.grey[600]),
+                                  overflow: TextOverflow
+                                      .ellipsis, // Email bhi trim hoga agar bada ho
+                                  maxLines: 2, // 2 lines tak email allow karega
+                                ),
+                              ],
+                            ),
                           ),
+
+                          // ListTile(
+                          //   leading: getImageAvatar(partner.image),
+                          //   title: Text(partner.name),
+                          //   subtitle: Text(partner.phone),
+                          //   trailing: Text(partner.email),
+                          //   onTap: () {
+                          //     setState(() {
+                          //       selectedIndex =
+                          //           selectedIndex == index ? null : index;
+                          //     });
+                          //   },
+                          // ),
                           if (isExpanded)
                             Padding(
                               padding: const EdgeInsets.symmetric(
